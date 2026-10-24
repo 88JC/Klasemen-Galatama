@@ -25,61 +25,15 @@ export function LeaderboardTable({
   onOpenHistoryModal,
   defaultPlusBin,
 }: LeaderboardTableProps) {
-  const [mobileView, setMobileView] = useState<'top10' | 'bottom10' | 'all'>('top10');
   const top10 = rankedResults.filter((r) => r.rank <= 10);
   const bottom10 = rankedResults.filter((r) => r.rank > 10);
 
   return (
     <div className="flex flex-col gap-2.5 w-full">
-      <div className="flex xl:hidden flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-1.5 p-1 rounded-2xl bg-zinc-200/80 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 shadow-2xs">
-          <button
-            type="button"
-            onClick={() => setMobileView('top10')}
-            className={`flex-1 py-1.5 px-3 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 ${mobileView === 'top10'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
-              }`}
-          >
-            <span>🥇</span> Slot 1 - 10
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileView('bottom10')}
-            className={`flex-1 py-1.5 px-3 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 ${mobileView === 'bottom10'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
-              }`}
-          >
-            <span>🥈</span> Slot 11 - 20
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileView('all')}
-            className={`py-1.5 px-3 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 ${mobileView === 'all'
-                ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-xs'
-                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
-              }`}
-          >
-            Semua (1-20)
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between px-2 text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-          <span>👉 Geser tabel ke kanan untuk kolom Absen & History</span>
-          <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-            {mobileView === 'top10' ? 'Slot 1–10' : mobileView === 'bottom10' ? 'Slot 11–20' : '20 Slot Lengkap'}
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 w-full">
-        <div
-          className={`flex-col rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 shadow-md overflow-hidden ${mobileView === 'bottom10' ? 'hidden xl:flex' : 'flex'
-            }`}
-        >
+      <div className="grid grid-cols-2 gap-3 w-full">
+        <div className="flex flex-col rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 shadow-md overflow-hidden">
           <div className="overflow-x-auto scrollbar-thin">
-            <div className="min-w-[640px] xl:min-w-0">
+            <div className="w-full min-w-0">
               <div className="grid grid-cols-[50px_1fr_64px_1fr_180px_46px_46px] gap-1.5 items-center px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-emerald-700 dark:bg-emerald-800 text-center shadow-xs">
                 <div>NO</div>
                 <div>NAMA</div>
@@ -109,12 +63,9 @@ export function LeaderboardTable({
           </div>
         </div>
 
-        <div
-          className={`flex-col rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 shadow-md overflow-hidden ${mobileView === 'top10' ? 'hidden xl:flex' : 'flex'
-            }`}
-        >
+        <div className="flex flex-col rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 shadow-md overflow-hidden">
           <div className="overflow-x-auto scrollbar-thin">
-            <div className="min-w-[640px] xl:min-w-0">
+            <div className="w-full min-w-0">
               <div className="grid grid-cols-[50px_1fr_64px_1fr_180px_46px_46px] gap-1.5 items-center px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-emerald-700 dark:bg-emerald-800 text-center shadow-xs">
                 <div>NO</div>
                 <div>NAMA</div>

@@ -43,7 +43,25 @@ export default function Home() {
   const isInitialMount = useRef<boolean>(true);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Scalable canvas auto-fit to screen: designed at 1400px x 760px
+  // Show/Hide hero banner preference
+  const [showBanner, setShowBanner] = useState<boolean>(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('klasemen_show_banner');
+    if (saved !== null) {
+      setShowBanner(saved === 'true');
+    }
+  }, []);
+
+  const toggleBanner = () => {
+    setShowBanner((prev) => {
+      const next = !prev;
+      localStorage.setItem('klasemen_show_banner', String(next));
+      return next;
+    });
+  };
+
+  // Scalable canvas auto-fit to screen: designed at 1400px wide
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,37 +71,28 @@ export default function Home() {
       const el = wrapRef.current;
       if (!el) return;
 
-      const isDesktop = window.innerWidth >= 1280;
+      const availW = window.innerWidth - 16;
+      const availH = window.innerHeight - 16;
 
-      if (isDesktop) {
-        const availW = window.innerWidth - 16;
-        const availH = window.innerHeight - 16;
+      const DESIGN_W = 1400;
+      const DESIGN_H = showBanner ? 880 : 660;
 
-        const DESIGN_W = 1400;
-        const DESIGN_H = 880;
+      // Scale proportionally to fit BOTH width and height completely in viewport
+      const scaleW = availW / DESIGN_W;
+      const scaleH = availH / DESIGN_H;
+      const targetScale = Math.min(scaleW, scaleH);
 
-        // Scale proportionally to fit BOTH width and height completely in viewport on desktop
-        const scaleW = availW / DESIGN_W;
-        const scaleH = availH / DESIGN_H;
-        const targetScale = Math.min(scaleW, scaleH);
+      // Clamp scale between 0.2 and 1.5 to support any minimized window size
+      const scale = Math.min(Math.max(targetScale, 0.2), 1.5);
 
-        // Clamp scale between 0.32 and 1.25 on desktop
-        const scale = Math.min(Math.max(targetScale, 0.32), 1.25);
-
-        if ('zoom' in (document.body.style as unknown as Record<string, unknown>)) {
-          (el.style as unknown as Record<string, unknown>).zoom = scale;
-          el.style.transform = 'none';
-          el.style.marginBottom = '0px';
-        } else {
-          el.style.transformOrigin = 'top center';
-          el.style.transform = `scale(${scale})`;
-          el.style.marginBottom = `-${Math.round((1 - scale) * DESIGN_H)}px`;
-        }
-      } else {
-        // Natural responsive flow for mobile, tablet, and laptop
-        (el.style as unknown as Record<string, unknown>).zoom = '1';
+      if ('zoom' in (document.body.style as unknown as Record<string, unknown>)) {
+        (el.style as unknown as Record<string, unknown>).zoom = scale;
         el.style.transform = 'none';
         el.style.marginBottom = '0px';
+      } else {
+        el.style.transformOrigin = 'top center';
+        el.style.transform = `scale(${scale})`;
+        el.style.marginBottom = `-${Math.round((1 - scale) * DESIGN_H)}px`;
       }
     }
 
@@ -100,7 +109,7 @@ export default function Home() {
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [showBanner]);
 
   // Initialize theme strictly from user preference in localStorage (defaults strictly to 'dark')
   useEffect(() => {
@@ -343,7 +352,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-start bg-[#f0f2f5] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-50 transition-colors p-1.5 sm:p-2 xl:p-2 overflow-x-hidden">
       <div
         ref={wrapRef}
-        className="w-full max-w-full xl:w-[1400px] flex flex-col gap-2.5 shrink-0"
+        className="w-[1400px] max-w-[1400px] flex flex-col gap-2.5 shrink-0"
         style={{ margin: '0 auto' }}
       >
         <HeaderToolbar
@@ -351,6 +360,8 @@ export default function Home() {
           emptySlotsCount={emptySlotsCount}
           theme={theme}
           onToggleTheme={toggleTheme}
+          showBanner={showBanner}
+          onToggleBanner={toggleBanner}
           onUpdateSettings={handleUpdateSettings}
           onOpenStats={() => setIsStatsOpen(true)}
           onOpenAdmin={() => setIsAdminOpen(true)}
@@ -371,12 +382,14 @@ export default function Home() {
           </span>
         </div>
 
-        <TableHeroBanner
-          settings={tournament.settings}
-          rankedResults={rankedResults}
-          participants={tournament.participants}
-          onOpenFishModal={(id) => setFishModalId(id)}
-        />
+        {showBanner && (
+          <TableHeroBanner
+            settings={tournament.settings}
+            rankedResults={rankedResults}
+            participants={tournament.participants}
+            onOpenFishModal={(id) => setFishModalId(id)}
+          />
+        )}
 
         {isLoading ? (
           <div className="py-24 flex flex-col items-center justify-center gap-3 text-center">
