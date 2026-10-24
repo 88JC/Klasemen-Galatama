@@ -13,6 +13,7 @@ interface LeaderboardTableProps {
   onOpenFishModal: (id: number) => void;
   onOpenHistoryModal: (id: number) => void;
   defaultPlusBin: number;
+  isMobile?: boolean;
 }
 
 export function LeaderboardTable({
@@ -24,17 +25,27 @@ export function LeaderboardTable({
   onOpenFishModal,
   onOpenHistoryModal,
   defaultPlusBin,
+  isMobile = false,
 }: LeaderboardTableProps) {
   const top10 = rankedResults.filter((r) => r.rank <= 10);
   const bottom10 = rankedResults.filter((r) => r.rank > 10);
 
   return (
     <div className="flex flex-col gap-2.5 w-full">
-      <div className="grid grid-cols-2 gap-3 w-full">
+      <div className={`grid gap-3 w-full ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
         <div className="flex flex-col rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 shadow-md overflow-hidden">
+          {isMobile && (
+            <div className="px-3.5 py-1.5 bg-emerald-800 text-emerald-100 text-xs font-bold flex items-center justify-between border-b border-emerald-900">
+              <span className="flex items-center gap-1.5 font-mono">
+                <span>🏆</span>
+                <span>SLOT 1 - 10 (TOP 10)</span>
+              </span>
+              <span className="text-[10px] text-emerald-200/80 font-mono">Geser tabel ↔</span>
+            </div>
+          )}
           <div className="overflow-x-auto scrollbar-thin">
-            <div className="w-full min-w-0">
-              <div className="grid grid-cols-[50px_1fr_64px_1fr_180px_46px_46px] gap-1.5 items-center px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-emerald-700 dark:bg-emerald-800 text-center shadow-xs">
+            <div className={`w-full min-w-0 ${isMobile ? 'min-w-[580px]' : ''}`}>
+              <div className="grid grid-cols-[50px_1fr_64px_1fr_195px_46px_46px] gap-1.5 items-center px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-emerald-700 dark:bg-emerald-800 text-center shadow-xs">
                 <div>NO</div>
                 <div>NAMA</div>
                 <div>Pay</div>
@@ -64,9 +75,18 @@ export function LeaderboardTable({
         </div>
 
         <div className="flex flex-col rounded-2xl bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 shadow-md overflow-hidden">
+          {isMobile && (
+            <div className="px-3.5 py-1.5 bg-zinc-800 text-zinc-200 text-xs font-bold flex items-center justify-between border-b border-zinc-900">
+              <span className="flex items-center gap-1.5 font-mono">
+                <span>🥈</span>
+                <span>SLOT 11 - 20</span>
+              </span>
+              <span className="text-[10px] text-zinc-400 font-mono">Geser tabel ↔</span>
+            </div>
+          )}
           <div className="overflow-x-auto scrollbar-thin">
-            <div className="w-full min-w-0">
-              <div className="grid grid-cols-[50px_1fr_64px_1fr_180px_46px_46px] gap-1.5 items-center px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-emerald-700 dark:bg-emerald-800 text-center shadow-xs">
+            <div className={`w-full min-w-0 ${isMobile ? 'min-w-[580px]' : ''}`}>
+              <div className="grid grid-cols-[50px_1fr_64px_1fr_195px_46px_46px] gap-1.5 items-center px-3 py-2 text-xs font-black uppercase tracking-wider text-white bg-emerald-700 dark:bg-emerald-800 text-center shadow-xs">
                 <div>NO</div>
                 <div>NAMA</div>
                 <div>Pay</div>
@@ -136,9 +156,11 @@ function TableRow({
     let delta = parseInt(deltaInput, 10);
     if (isNaN(delta) || delta === 0) {
       delta = defaultPlusBin > 0 ? defaultPlusBin : 1;
-    }
-    if (subtract) {
-      delta = -Math.abs(delta);
+      if (subtract) {
+        delta = -delta;
+      }
+    } else {
+      delta = subtract ? -Math.abs(delta) : Math.abs(delta);
     }
     onCommitDelta(p.id, delta, 'Manual');
     setDeltaInput('');
@@ -195,7 +217,7 @@ function TableRow({
   return (
     <div
       data-id={p.id}
-      className={`grid grid-cols-[50px_1fr_64px_1fr_180px_46px_46px] gap-1.5 items-center px-3 py-1.5 transition-colors duration-150 ${rowBg} ${flashAnimClass}`}
+      className={`grid grid-cols-[50px_1fr_64px_1fr_195px_46px_46px] gap-1.5 items-center px-3 py-1.5 transition-colors duration-150 ${rowBg} ${flashAnimClass}`}
     >
       <div className="flex items-center justify-center">
         <button
@@ -297,30 +319,53 @@ function TableRow({
         />
       </div>
 
-      <div className="flex items-center justify-center gap-1.5">
+      <div className="flex items-center justify-center gap-1">
+        <button
+          type="button"
+          onClick={() => handleCommitDelta(true)}
+          title="Kurang poin (-)"
+          className="w-7 h-7 rounded-md flex items-center justify-center font-black text-sm bg-rose-600 hover:bg-rose-700 text-white active:scale-95 transition-all shadow-xs cursor-pointer"
+        >
+          -
+        </button>
+
         <span
-          className={`min-w-[34px] text-right font-black text-xl tabular-nums leading-none ${p.red ? 'text-white' : 'text-zinc-900 dark:text-zinc-50'
+          className={`min-w-[34px] text-center font-black text-xl tabular-nums leading-none ${p.red ? 'text-white' : 'text-zinc-900 dark:text-zinc-50'
             }`}
         >
           {p.points}
         </span>
 
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9-]*"
           value={deltaInput}
           placeholder="±"
-          onChange={(e) => setDeltaInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleCommitDelta();
+          onChange={(e) => {
+            const val = e.target.value;
+            if (/^-?\d*$/.test(val)) {
+              setDeltaInput(val);
+            }
           }}
-          className="w-8 h-7 text-center font-bold text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none shadow-2xs"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              const raw = parseInt(deltaInput, 10);
+              if (!isNaN(raw) && raw < 0) {
+                handleCommitDelta(true);
+              } else {
+                handleCommitDelta(false);
+              }
+            }
+          }}
+          className="w-8 h-7 text-center font-bold text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-2xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
 
         <button
           type="button"
           onClick={() => handleCommitDelta(false)}
           title="Tambah poin (+)"
-          className="w-7 h-7 rounded-md flex items-center justify-center font-black text-sm bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-xs"
+          className="w-7 h-7 rounded-md flex items-center justify-center font-black text-sm bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-xs cursor-pointer"
         >
           +
         </button>
@@ -329,7 +374,7 @@ function TableRow({
           type="button"
           onClick={() => onOpenFishModal(p.id)}
           title="Tarik Ikan"
-          className="w-7 h-7 rounded-md flex items-center justify-center bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 active:scale-95 transition-all shadow-2xs"
+          className="w-7 h-7 rounded-md flex items-center justify-center bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 active:scale-95 transition-all shadow-2xs cursor-pointer"
         >
           <FishIcon className="w-4 h-4" />
         </button>

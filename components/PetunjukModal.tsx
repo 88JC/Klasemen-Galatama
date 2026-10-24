@@ -63,7 +63,7 @@ export function PetunjukModal({ isOpen, onClose }: PetunjukModalProps) {
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-lime-500 font-bold">•</span>
-                <span><strong>Tombol Plus (+):</strong> Menambahkan poin secara instan sesuai nilai <em>+ POINT BIN</em> yang diatur di header atas.</span>
+                <span><strong>Tombol Plus (+) & Minus (-):</strong> Menambah (<code className="px-1 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">+</code>) atau mengurangi (<code className="px-1 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold">-</code>) poin secara instan sesuai input delta atau nilai <em>+ POINT BIN</em>.</span>
               </li>
               <li className="flex items-start gap-1.5">
                 <span className="text-lime-500 font-bold">•</span>

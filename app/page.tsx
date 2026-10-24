@@ -43,6 +43,27 @@ export default function Home() {
   const isInitialMount = useRef<boolean>(true);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Mobile device detection
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    function detectMobile() {
+      if (typeof window === 'undefined') return false;
+      const ua = navigator.userAgent || '';
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      const isTouchScreen = window.matchMedia('(max-width: 1024px) and (pointer: coarse)').matches;
+      return isMobileUA || isTouchScreen;
+    }
+
+    const updateMobile = () => {
+      setIsMobile(detectMobile());
+    };
+
+    updateMobile();
+    window.addEventListener('resize', updateMobile);
+    return () => window.removeEventListener('resize', updateMobile);
+  }, []);
+
   // Scalable canvas auto-fit to screen: designed at 1400px wide
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -53,6 +74,21 @@ export default function Home() {
       const el = wrapRef.current;
       if (!el) return;
 
+      if (isMobile) {
+        // Natural mobile responsive flow: no 0.2x zoom shrinking
+        if ('zoom' in (document.body.style as unknown as Record<string, unknown>)) {
+          (el.style as unknown as Record<string, unknown>).zoom = '1';
+          el.style.transform = 'none';
+          el.style.marginBottom = '0px';
+        } else {
+          el.style.transformOrigin = 'top center';
+          el.style.transform = 'none';
+          el.style.marginBottom = '0px';
+        }
+        return;
+      }
+
+      // Desktop & Minimized Desktop auto-scaling canvas (100% UNTOUCHED):
       const availW = window.innerWidth - 16;
       const availH = window.innerHeight - 16;
 
@@ -91,7 +127,7 @@ export default function Home() {
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isMobile]);
 
   // Initialize theme strictly from user preference in localStorage (defaults strictly to 'dark')
   useEffect(() => {
@@ -331,10 +367,12 @@ export default function Home() {
   const activeHistoryParticipant = tournament.participants.find((p) => p.id === historyModalId) || null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-[#f0f2f5] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-50 transition-colors p-1.5 sm:p-2 xl:p-2 overflow-x-hidden">
+    <div className={`min-h-screen flex flex-col items-center justify-start bg-[#f0f2f5] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-50 transition-colors p-1.5 sm:p-2 xl:p-2 overflow-x-hidden ${isMobile ? 'w-full' : ''}`}>
       <div
         ref={wrapRef}
-        className="w-[1400px] max-w-[1400px] flex flex-col gap-2.5 shrink-0"
+        className={`flex flex-col gap-2.5 shrink-0 ${
+          isMobile ? 'w-full max-w-full' : 'w-[1400px] max-w-[1400px]'
+        }`}
         style={{ margin: '0 auto' }}
       >
         <HeaderToolbar
@@ -384,6 +422,7 @@ export default function Home() {
             onOpenFishModal={(id) => setFishModalId(id)}
             onOpenHistoryModal={(id) => setHistoryModalId(id)}
             defaultPlusBin={tournament.settings.plusDefault}
+            isMobile={isMobile}
           />
         )}
 
