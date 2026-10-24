@@ -77,10 +77,10 @@ export function Footer({
           </a>
 
           <a
-            href="https://github.com/88JC"
+            href="https://github.com/88JC/Klasemen-Galatama"
             target="_blank"
             rel="noopener noreferrer"
-            title="GitHub (https://github.com/88JC)"
+            title="GitHub (Open Source)"
             className="w-7 h-7 rounded-full bg-[#4d6318] hover:bg-[#3f5213] dark:bg-lime-500/25 dark:hover:bg-lime-500/40 text-white dark:text-lime-300 flex items-center justify-center transition-all hover:scale-110 shadow-2xs cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
